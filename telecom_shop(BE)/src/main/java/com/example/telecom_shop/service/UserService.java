@@ -1,10 +1,7 @@
 package com.example.telecom_shop.service;
 
 
-import com.example.telecom_shop.dto.LoginResponseDTO;
-import com.example.telecom_shop.dto.UserLoginDTO;
-import com.example.telecom_shop.dto.UserRegisterDTO;
-import com.example.telecom_shop.dto.UserResponseDTO;
+import com.example.telecom_shop.dto.*;
 import com.example.telecom_shop.enums.UserRole;
 import com.example.telecom_shop.enums.UserStatus;
 import com.example.telecom_shop.models.User;
@@ -12,6 +9,7 @@ import com.example.telecom_shop.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -185,4 +183,35 @@ public class UserService {
         session.invalidate();
     }
 
+    public UserResponseDTO updateUserDTO(UserUpdateDTO request) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword_hash())) {
+            throw new RuntimeException("Mật khâ hiện tại không chính xác");
+        }
+
+        user.setFull_name(request.getFull_name());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setUpdate_at(LocalDate.now());
+        User updateUser = userRepository.save(user);
+        return convertToResponseDTO(updateUser);
+
+    }
+    private UserResponseDTO convertToResponseDTO(User user) {
+
+        UserResponseDTO response = new UserResponseDTO();
+
+        response.setId(user.getId());
+        response.setFull_name(user.getFull_name());
+        response.setEmail(user.getEmail());
+        response.setPhone(user.getPhone());
+        response.setRole(user.getRole());
+        response.setStatus(user.getStatus());
+        response.setCreated_at(user.getCreated_at());
+        response.setUpdate_at(user.getUpdate_at());
+
+        return response;
+    }
 }

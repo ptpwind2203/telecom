@@ -4,6 +4,15 @@ public class UserUpdateDTO {
     private String full_name;
     private String email;
     private String phone;
+    private String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getFull_name() {
         return full_name;

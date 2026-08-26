@@ -1,11 +1,5 @@
 package com.example.telecom_shop.dto;
 
-import com.example.telecom_shop.enums.UserRole;
-import com.example.telecom_shop.enums.UserStatus;
-
-import java.time.LocalDate;
-
-
 public class UserRegisterDTO {
     private String full_name;
     private String email;

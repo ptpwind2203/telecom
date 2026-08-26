@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     //Dùng để kiểm tra sự tồn tại của email trong DB
     boolean existsByEmail(String email);
 
+    Optional<User> findById(Integer id);
+
     Optional<User> findByPhoneOrEmail(String phone, String email);
 
 }

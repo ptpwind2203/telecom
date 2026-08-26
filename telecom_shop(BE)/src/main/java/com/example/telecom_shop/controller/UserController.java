@@ -1,9 +1,6 @@
 package com.example.telecom_shop.controller;
 
-import com.example.telecom_shop.dto.LoginResponseDTO;
-import com.example.telecom_shop.dto.UserLoginDTO;
-import com.example.telecom_shop.dto.UserRegisterDTO;
-import com.example.telecom_shop.dto.UserResponseDTO;
+import com.example.telecom_shop.dto.*;
 import com.example.telecom_shop.service.UserService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,5 +51,12 @@ public class UserController {
         return ResponseEntity.ok(
                 "Đăng xuất thành công!"
         );
+    }
+
+    @PutMapping("/update-account")
+    public ResponseEntity<UserResponseDTO> updateAccount(@RequestBody UserUpdateDTO request) {
+        UserResponseDTO response = userService.updateUserDTO(request);
+
+        return ResponseEntity.ok(response);
     }
 }

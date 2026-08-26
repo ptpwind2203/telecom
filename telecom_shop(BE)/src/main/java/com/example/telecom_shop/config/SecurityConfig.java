@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/user/login",
                                 "/user/create-account",
-                                "/user/logout"
+                                "/user/logout",
+                                "/user/update-account"
                         ).permitAll()
 
                         // Profile tự kiểm tra Session
