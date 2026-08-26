@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/user/login",
                                 "/user/create-account",
                                 "/user/logout",
-                                "/user/update-account"
+                                "/user/update-account",
+                                "/user/update-password"
                         ).permitAll()
 
                         // Profile tự kiểm tra Session

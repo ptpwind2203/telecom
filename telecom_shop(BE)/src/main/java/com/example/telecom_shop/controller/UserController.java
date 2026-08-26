@@ -59,4 +59,10 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody UserPasswordDTO request) {
+        userService.UserUpdatePassword(request);
+        return ResponseEntity.ok("Đã cập nhập mật khẩu thành công");
+    }
 }

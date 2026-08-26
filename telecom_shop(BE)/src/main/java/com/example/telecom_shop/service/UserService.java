@@ -188,7 +188,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword_hash())) {
-            throw new RuntimeException("Mật khâ hiện tại không chính xác");
+            throw new RuntimeException("Mật khẩu hiện tại không chính xác");
         }
 
         user.setFull_name(request.getFull_name());
@@ -213,5 +213,24 @@ public class UserService {
         response.setUpdate_at(user.getUpdate_at());
 
         return response;
+    }
+
+    public void UserUpdatePassword(UserPasswordDTO request) {
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+
+        if (!passwordEncoder.matches(request.getPassword_old(), user.getPassword_hash())) {
+            throw new RuntimeException("Mật khẩu cũ không chính xác");
+        }
+        if(!request.getPassword_new().equals(request.getComfirm_password())) {
+            throw new RuntimeException("Mật khẩu xác nhận không trùng khớp");
+        }
+
+        user.setPassword_hash(passwordEncoder.encode(request.getPassword_new()));
+
+        userRepository.save(user);
+
     }
 }
