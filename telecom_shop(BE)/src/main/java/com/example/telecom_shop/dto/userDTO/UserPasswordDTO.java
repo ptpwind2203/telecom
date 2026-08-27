@@ -1,4 +1,4 @@
-package com.example.telecom_shop.dto;
+package com.example.telecom_shop.dto.userDTO;
 
 public class UserPasswordDTO {
     private String password_old;

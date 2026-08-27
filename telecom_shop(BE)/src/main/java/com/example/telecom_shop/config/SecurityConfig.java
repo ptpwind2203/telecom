@@ -40,14 +40,15 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/user/login",
                                 "/user/create-account",
+                                "/provider/list-provider",
+                                "/provider/detail-provider/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/user/profile",
                                 "/user/logout",
                                 "/user/update-account",
                                 "/user/update-password"
-                        ).permitAll()
-
-                        // Profile tự kiểm tra Session
-                        .requestMatchers(
-                                "/user/profile"
                         ).permitAll()
 
                         // Các API khác

@@ -1,10 +1,9 @@
 package com.example.telecom_shop.controller;
 
-import com.example.telecom_shop.dto.*;
+import com.example.telecom_shop.dto.userDTO.*;
 import com.example.telecom_shop.service.UserService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

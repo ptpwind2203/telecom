@@ -1,11 +1,18 @@
-package com.example.telecom_shop.dto;
+package com.example.telecom_shop.dto.userDTO;
 
-public class UserRegisterDTO {
+public class UserUpdateDTO {
     private String full_name;
     private String email;
     private String phone;
     private String password;
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getFull_name() {
         return full_name;
@@ -30,16 +37,4 @@ public class UserRegisterDTO {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-
-
-
 }

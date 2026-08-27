@@ -1,4 +1,4 @@
-package com.example.telecom_shop.dto;
+package com.example.telecom_shop.dto.userDTO;
 
 public class LoginResponseDTO {
     private UserResponseDTO user;

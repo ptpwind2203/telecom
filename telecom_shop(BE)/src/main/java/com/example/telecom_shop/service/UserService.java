@@ -1,7 +1,7 @@
 package com.example.telecom_shop.service;
 
 
-import com.example.telecom_shop.dto.*;
+import com.example.telecom_shop.dto.userDTO.*;
 import com.example.telecom_shop.enums.UserRole;
 import com.example.telecom_shop.enums.UserStatus;
 import com.example.telecom_shop.models.User;
@@ -9,7 +9,6 @@ import com.example.telecom_shop.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

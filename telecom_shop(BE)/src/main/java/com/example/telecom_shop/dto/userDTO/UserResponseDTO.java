@@ -1,4 +1,4 @@
-package com.example.telecom_shop.dto;
+package com.example.telecom_shop.dto.userDTO;
 
 import com.example.telecom_shop.enums.UserRole;
 import com.example.telecom_shop.enums.UserStatus;
