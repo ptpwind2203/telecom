@@ -1,6 +1,6 @@
 package com.example.telecom_shop.enums;
 
-public enum UserRole {
+public enum AccountRole {
     CUSTOMER,
     ADMIN,
     STAFF

@@ -2,7 +2,7 @@ package com.example.telecom_shop.service;
 
 
 import com.example.telecom_shop.dto.userDTO.*;
-import com.example.telecom_shop.enums.UserRole;
+import com.example.telecom_shop.enums.AccountRole;
 import com.example.telecom_shop.enums.UserStatus;
 import com.example.telecom_shop.models.User;
 import com.example.telecom_shop.repository.UserRepository;
@@ -51,7 +51,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setPassword_hash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(UserRole.CUSTOMER);
+        user.setRole(AccountRole.CUSTOMER);
         user.setStatus(UserStatus.ACTIVE);
         user.setCreated_at(LocalDate.now());
         user.setUpdate_at(LocalDate.now());

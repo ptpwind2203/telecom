@@ -1,6 +1,6 @@
 package com.example.telecom_shop.models;
 
-import com.example.telecom_shop.enums.UserRole;
+import com.example.telecom_shop.enums.AccountRole;
 import com.example.telecom_shop.enums.UserStatus;
 import jakarta.persistence.*;
 
@@ -28,7 +28,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private UserRole role;
+    private AccountRole role;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -81,11 +81,11 @@ public class User {
         this.password_hash = password_hash;
     }
 
-    public UserRole getRole() {
+    public AccountRole getRole() {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(AccountRole role) {
         this.role = role;
     }
 

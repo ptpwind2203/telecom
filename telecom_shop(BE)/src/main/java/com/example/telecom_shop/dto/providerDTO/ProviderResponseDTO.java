@@ -1,6 +1,6 @@
 package com.example.telecom_shop.dto.providerDTO;
 
-import com.example.telecom_shop.enums.ProviderStatus;
+import com.example.telecom_shop.enums.ActivationStatus;
 
 import java.time.LocalDate;
 
@@ -10,7 +10,7 @@ public class ProviderResponseDTO {
     private String description;
     private String code;
     private String logo_url;
-    private ProviderStatus status;
+    private ActivationStatus status;
     private LocalDate updated_at;
     private LocalDate created_at;
 
@@ -54,11 +54,11 @@ public class ProviderResponseDTO {
         this.logo_url = logo_url;
     }
 
-    public ProviderStatus getStatus() {
+    public ActivationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ProviderStatus status) {
+    public void setStatus(ActivationStatus status) {
         this.status = status;
     }
 

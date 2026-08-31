@@ -1,6 +1,6 @@
 package com.example.telecom_shop.dto.userDTO;
 
-import com.example.telecom_shop.enums.UserRole;
+import com.example.telecom_shop.enums.AccountRole;
 import com.example.telecom_shop.enums.UserStatus;
 
 import java.time.LocalDate;
@@ -10,7 +10,7 @@ public class UserResponseDTO {
     private String full_name;
     private String email;
     private String phone;
-    private UserRole role;
+    private AccountRole role;
     private UserStatus status;
     private LocalDate created_at;
     private LocalDate update_at;
@@ -47,11 +47,11 @@ public class UserResponseDTO {
         this.phone = phone;
     }
 
-    public UserRole getRole() {
+    public AccountRole getRole() {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(AccountRole role) {
         this.role = role;
     }
 

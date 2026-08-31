@@ -1,24 +1,20 @@
 package com.example.telecom_shop.models;
 
-
 import com.example.telecom_shop.enums.ActivationStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "providers")
-public class Provider {
+@Table(name = "service_categories")
+public class ServiceCategories {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "logo_url")
-    private String logo_url;
 
     @Column(name = "description")
     private String description;
@@ -32,9 +28,6 @@ public class Provider {
 
     @Column(name = "updated_at")
     private LocalDate updated_at;
-
-    @Column(name = "code", unique = true, nullable = false)
-    private String code;
 
     public Integer getId() {
         return id;
@@ -50,14 +43,6 @@ public class Provider {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getLogo_url() {
-        return logo_url;
-    }
-
-    public void setLogo_url(String logo_url) {
-        this.logo_url = logo_url;
     }
 
     public String getDescription() {
@@ -90,13 +75,5 @@ public class Provider {
 
     public void setUpdated_at(LocalDate updated_at) {
         this.updated_at = updated_at;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 }
