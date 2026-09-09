@@ -1,12 +1,11 @@
 package com.example.telecom_shop.controller;
 
+import com.example.telecom_shop.dto.servicePackage.PackageDetailDTO;
 import com.example.telecom_shop.dto.servicePackage.PackageResponseDTO;
 import com.example.telecom_shop.service.PackageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,4 +20,11 @@ public class ServicePackageController {
     public List<PackageResponseDTO> listAllPackage() {
         return packageService.getAllPackage() ;
     }
+
+    @GetMapping("/package/detail/{code}")
+    public ResponseEntity<PackageDetailDTO> getPackageDetail(@PathVariable String code) {
+        PackageDetailDTO packageDetailDTO = packageService.getPackageDetailByCode(code);
+        return ResponseEntity.ok(packageDetailDTO);
+    }
+
 }
