@@ -1,56 +1,51 @@
 package com.example.telecom_shop.service;
 
-
 import com.example.telecom_shop.dto.userDTO.*;
 import com.example.telecom_shop.enums.AccountRole;
 import com.example.telecom_shop.enums.UserStatus;
 import com.example.telecom_shop.models.User;
 import com.example.telecom_shop.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    @Autowired private UserRepository userRepository;
+    @Autowired private BCryptPasswordEncoder passwordEncoder;
+    @Autowired private SecurityContextRepository securityContextRepository;
 
-    @Autowired
-    private HttpSession session;
+    // =========================================================
+    // CREATE ACCOUNT
+    // =========================================================
+    public void createUser(UserRegisterDTO req) throws BadRequestException {
+        validateBlank(req.getFull_name(), "Họ và tên không được để trống!");
+        validateBlank(req.getEmail(), "Email không được để trống!");
+        validateBlank(req.getPhone(), "Số điện thoại không được để trống!");
+        validateBlank(req.getPassword(), "Mật khẩu không được để trống!");
 
-    public void createUser(UserRegisterDTO request) throws BadRequestException {
-        if (request.getFull_name() == null ||  request.getFull_name().isBlank()) {
-            throw new BadRequestException("Họ và tên không được để trống!");
-        }
-        if (request.getEmail() == null ||  request.getEmail().isBlank()) {
-            throw new BadRequestException("Email không được để trống!");
-        }
-        if (request.getPhone() == null ||  request.getPhone().isBlank()) {
-            throw new BadRequestException("Số điện thoại không được để trống!");
-        }
-        if (request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new BadRequestException("Mật khẩu không được để trống!");
-        }
-
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email đã tồn tại!");
-        }
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new BadRequestException("Số điện thoại đã tồn tại!");
-        }
+        if (userRepository.existsByEmail(req.getEmail())) throw new BadRequestException("Email đã tồn tại!");
+        if (userRepository.existsByPhone(req.getPhone())) throw new BadRequestException("Số điện thoại đã tồn tại!");
 
         User user = new User();
-        user.setFull_name(request.getFull_name());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setPassword_hash(passwordEncoder.encode(request.getPassword()));
+        user.setFull_name(req.getFull_name());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
+        user.setPassword_hash(passwordEncoder.encode(req.getPassword()));
         user.setRole(AccountRole.CUSTOMER);
         user.setStatus(UserStatus.ACTIVE);
         user.setCreated_at(LocalDate.now());
@@ -59,177 +54,118 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public LoginResponseDTO login(UserLoginDTO request) {
+    // =========================================================
+    // LOGIN
+    // =========================================================
+    public LoginResponseDTO login(UserLoginDTO req, HttpServletRequest request, HttpServletResponse response) {
+        validateBlank(req.getPassword(), "Mật khẩu không được để trống!");
+        validateBlank(req.getAccount(), "Email hoặc số điện thoại đang trống!");
 
-        if (request.getPassword() == null ||
-                request.getPassword().isBlank()) {
+        User user = userRepository.findByPhoneOrEmail(req.getAccount(), req.getAccount())
+                .orElseThrow(() -> new RuntimeException("Email hoặc số điện thoại không tồn tại"));
 
-            throw new RuntimeException(
-                    "Mật khẩu không được để trống!"
-            );
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword_hash())) {
+            throw new RuntimeException("Mật khẩu không chính xác");
         }
-
-        if (request.getAccount() == null ||
-                request.getAccount().isBlank()) {
-
-            throw new RuntimeException(
-                    "Email hoặc số điện thoại đang trống!"
-            );
-        }
-
-        // Tìm user bằng email hoặc số điện thoại
-        User user = userRepository
-                .findByPhoneOrEmail(
-                        request.getAccount(),
-                        request.getAccount()
-                )
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Email hoặc số điện thoại không tồn tại"
-                        )
-                );
-
-        // Kiểm tra mật khẩu
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword_hash()
-        )) {
-            throw new RuntimeException(
-                    "Mật khẩu không chính xác"
-            );
-        }
-
-        // Kiểm tra trạng thái tài khoản
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new RuntimeException(
-                    "Tài khoản đã bị khóa hoặc không hoạt động"
-            );
+            throw new RuntimeException("Tài khoản đã bị khóa hoặc không hoạt động");
         }
 
-        // ==========================================
-        // LƯU USER ID VÀO SESSION
-        // ==========================================
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                user.getId(), null, List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
 
-        session.setAttribute("userId", user.getId());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+        securityContextRepository.saveContext(context, request, response);
 
-        // ==========================================
-        // CHUYỂN USER -> USER RESPONSE DTO
-        // ==========================================
-
-        UserResponseDTO userResponse = new UserResponseDTO();
-
-        userResponse.setId(user.getId());
-        userResponse.setFull_name(user.getFull_name());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setPhone(user.getPhone());
-        userResponse.setRole(user.getRole());
-        userResponse.setStatus(user.getStatus());
-        userResponse.setCreated_at(user.getCreated_at());
-        userResponse.setUpdate_at(user.getUpdate_at());
-
-        // ==========================================
-        // TẠO LOGIN RESPONSE
-        // ==========================================
-
-        LoginResponseDTO response = new LoginResponseDTO();
-
-        response.setUser(userResponse);
-
-        return response;
+        LoginResponseDTO res = new LoginResponseDTO();
+        res.setUser(convertToResponseDTO(user));
+        return res;
     }
 
+    // =========================================================
+    // GET CURRENT USER
+    // =========================================================
     public UserResponseDTO getCurrentUser() {
-
-        // Lấy userId từ session
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        // Chưa đăng nhập
-        if (userId == null) {
-            throw new RuntimeException("Bạn chưa đăng nhập!");
-        }
-
-        // Tìm user trong database
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new RuntimeException("Không tìm thấy tài khoản!")
-                );
-
-        // Chuyển User Entity -> UserResponseDTO
-        UserResponseDTO response = new UserResponseDTO();
-
-        response.setId(user.getId());
-        response.setFull_name(user.getFull_name());
-        response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
-        response.setRole(user.getRole());
-        response.setStatus(user.getStatus());
-        response.setCreated_at(user.getCreated_at());
-        response.setUpdate_at(user.getUpdate_at());
-
-        return response;
+        return convertToResponseDTO(findAuthenticatedUser());
     }
 
-    public void logout() {
-
-        // Kiểm tra user có đang đăng nhập không
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userId == null) {
-            throw new RuntimeException("Bạn chưa đăng nhập!");
-        }
-
-        // Hủy session
-        session.invalidate();
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        SecurityContextHolder.clearContext();
+        HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
     }
 
-    public UserResponseDTO updateUserDTO(UserUpdateDTO request) {
-        Integer userId = (Integer) session.getAttribute("userId");
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword_hash())) {
+    // =========================================================
+    // UPDATE ACCOUNT
+    // =========================================================
+    public UserResponseDTO updateUserDTO(UserUpdateDTO req) {
+        User user = findAuthenticatedUser();
+
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword_hash())) {
             throw new RuntimeException("Mật khẩu hiện tại không chính xác");
         }
 
-        user.setFull_name(request.getFull_name());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
+        user.setFull_name(req.getFull_name());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
         user.setUpdate_at(LocalDate.now());
-        User updateUser = userRepository.save(user);
-        return convertToResponseDTO(updateUser);
 
-    }
-    private UserResponseDTO convertToResponseDTO(User user) {
-
-        UserResponseDTO response = new UserResponseDTO();
-
-        response.setId(user.getId());
-        response.setFull_name(user.getFull_name());
-        response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
-        response.setRole(user.getRole());
-        response.setStatus(user.getStatus());
-        response.setCreated_at(user.getCreated_at());
-        response.setUpdate_at(user.getUpdate_at());
-
-        return response;
+        return convertToResponseDTO(userRepository.save(user));
     }
 
-    public void UserUpdatePassword(UserPasswordDTO request) {
-        Integer userId = (Integer) session.getAttribute("userId");
+    // =========================================================
+    // UPDATE PASSWORD
+    // =========================================================
+    public void UserUpdatePassword(UserPasswordDTO req) {
+        User user = findAuthenticatedUser();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
-
-        if (!passwordEncoder.matches(request.getPassword_old(), user.getPassword_hash())) {
+        if (!passwordEncoder.matches(req.getPassword_old(), user.getPassword_hash())) {
             throw new RuntimeException("Mật khẩu cũ không chính xác");
         }
-        if(!request.getPassword_new().equals(request.getComfirm_password())) {
+        validateBlank(req.getPassword_new(), "Mật khẩu mới không được để trống");
+        if (!req.getPassword_new().equals(req.getComfirm_password())) {
             throw new RuntimeException("Mật khẩu xác nhận không trùng khớp");
         }
 
-        user.setPassword_hash(passwordEncoder.encode(request.getPassword_new()));
-
+        user.setPassword_hash(passwordEncoder.encode(req.getPassword_new()));
+        user.setUpdate_at(LocalDate.now());
         userRepository.save(user);
+    }
 
+    // =========================================================
+    // HELPER METHODS
+    // =========================================================
+    private User findAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof Integer)) {
+            throw new RuntimeException("Bạn chưa đăng nhập!");
+        }
+        return userRepository.findById((Integer) auth.getPrincipal())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản!"));
+    }
+
+    private void validateBlank(String value, String message) {
+        if (value == null || value.isBlank()) {
+            throw new RuntimeException(message); // Hoặc giữ nguyên BadRequestException tùy theo yêu cầu
+        }
+    }
+
+    private UserResponseDTO convertToResponseDTO(User user) {
+        UserResponseDTO res = new UserResponseDTO();
+        res.setId(user.getId());
+        res.setFull_name(user.getFull_name());
+        res.setEmail(user.getEmail());
+        res.setPhone(user.getPhone());
+        res.setRole(user.getRole());
+        res.setStatus(user.getStatus());
+        res.setCreated_at(user.getCreated_at());
+        res.setUpdate_at(user.getUpdate_at());
+        return res;
     }
 }

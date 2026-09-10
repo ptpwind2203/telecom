@@ -3,7 +3,10 @@ package com.example.telecom_shop.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,6 +35,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 // ==============================
+                // SESSION
+                // ==============================
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(
+                                SessionCreationPolicy.IF_REQUIRED
+                        )
+                )
+                // ==============================
                 // AUTHORIZATION
                 // ==============================
                 .authorizeHttpRequests(auth -> auth
@@ -45,11 +56,8 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(
-                                "/user/profile",
-                                "/user/logout",
-                                "/user/update-account",
-                                "/user/update-password"
-                        ).permitAll()
+                                "/user/**"
+                        ).hasAnyRole("CUSTOMER", "ADMIN", "STAFF")
 
                         // Các API khác
                         .anyRequest().authenticated()
@@ -100,4 +108,10 @@ public class SecurityConfig {
 
         return source;
     }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
 }

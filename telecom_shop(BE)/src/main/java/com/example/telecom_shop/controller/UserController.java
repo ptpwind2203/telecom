@@ -2,6 +2,8 @@ package com.example.telecom_shop.controller;
 
 import com.example.telecom_shop.dto.userDTO.*;
 import com.example.telecom_shop.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody UserLoginDTO request) {
-        LoginResponseDTO loginResponseDTO = userService.login(request);
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody UserLoginDTO request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        LoginResponseDTO loginResponseDTO = userService.login(request, httpRequest, httpResponse);
         return ResponseEntity.ok(loginResponseDTO);
     }
 
@@ -43,9 +45,9 @@ public class UserController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
+    public ResponseEntity<String> logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 
-        userService.logout();
+        userService.logout(httpRequest, httpResponse);
 
         return ResponseEntity.ok(
                 "Đăng xuất thành công!"
