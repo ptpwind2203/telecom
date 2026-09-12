@@ -9,6 +9,12 @@ public interface ProviderRepository extends JpaRepository<Provider, Integer> {
 
     boolean existsByCode(String Code);
 
+    boolean existsById(Integer id);
+
     Optional<Provider> findByCode(String code);
 
+    Optional<Provider> findById(Integer id);
+
+
+    boolean existsByCodeAndIdNot(String code, Integer id);
 }

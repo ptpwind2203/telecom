@@ -16,15 +16,20 @@ public class ServicePackageController {
     @Autowired
     private PackageService packageService;
 
-    @GetMapping("/list-all-package")
+
+    @GetMapping("/list")
     public List<PackageResponseDTO> listAllPackage() {
         return packageService.getAllPackage() ;
     }
 
-    @GetMapping("/package/detail/{code}")
+    @GetMapping("/detail/{code}")
     public ResponseEntity<PackageDetailDTO> getPackageDetail(@PathVariable String code) {
         PackageDetailDTO packageDetailDTO = packageService.getPackageDetailByCode(code);
         return ResponseEntity.ok(packageDetailDTO);
     }
+
+
+
+
 
 }
